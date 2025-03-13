@@ -14,7 +14,8 @@ import {
   MapPin, 
   Star, 
   Clock, 
-  Plane 
+  Plane,
+  Utensils
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,18 @@ export interface TripData {
   duration: number;
   itinerary: ItineraryDay[];
   tips: string[];
+  foodSuggestions?: FoodSuggestion[];
   transportation?: {
     flights: Flight[];
     localTransportation: string[];
   };
+}
+
+export interface FoodSuggestion {
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
 }
 
 export interface ItineraryDay {
@@ -161,6 +170,38 @@ const TripResults: React.FC<TripResultsProps> = ({ loading, tripData, error }) =
               {tripData.itinerary.map((day) => (
                 <ItineraryDayCard key={day.day} day={day} />
               ))}
+              
+              {/* Food Suggestions Section */}
+              {tripData.foodSuggestions && tripData.foodSuggestions.length > 0 && (
+                <div className="bg-secondary/50 rounded-xl p-6 mt-6">
+                  <h3 className="font-medium text-lg mb-4 flex items-center gap-2">
+                    <Utensils className="h-5 w-5 text-primary" /> 
+                    Local Food Suggestions
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {tripData.foodSuggestions.map((food, index) => (
+                      <div key={index} className="bg-background/80 rounded-lg overflow-hidden border border-border/30 hover:shadow-md transition-shadow">
+                        <div className="aspect-video w-full overflow-hidden bg-muted">
+                          <img 
+                            src={food.imageUrl} 
+                            alt={food.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-medium text-base">{food.name}</h4>
+                            <Badge variant="outline" className="font-normal">
+                              ${food.price}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{food.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div className="bg-secondary/50 rounded-xl p-6 mt-6">
                 <h3 className="font-medium text-lg mb-4 flex items-center gap-2">

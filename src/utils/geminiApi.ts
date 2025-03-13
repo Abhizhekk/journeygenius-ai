@@ -145,6 +145,14 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
           ]
         }
       ],
+      "foodSuggestions": [
+        {
+          "name": "string (dish name)",
+          "description": "string (short description of the dish)",
+          "price": number (average price in USD),
+          "imageUrl": "string (URL to a photo of the dish - generate a plausible URL for Unsplash like https://source.unsplash.com/random/?food,dishname,${destination})"
+        }
+      ],
       "tips": ["string", "string", ...],
       ${showTransportation ? `
       "transportation": {
@@ -173,7 +181,8 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
     2. The budget breakdown is reasonable for the destination
     3. Activities match the listed interests
     4. Include local cultural experiences and hidden gems
-    5. Only include the JSON in your response, with no other text
+    5. Include 3-5 popular local food dishes with descriptions, approximate prices, and valid image URLs
+    6. Only include the JSON in your response, with no other text
   `;
 
   try {
