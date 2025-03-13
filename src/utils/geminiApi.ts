@@ -115,7 +115,7 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
     From: ${source}
     To: ${destination}
     Travel Date: ${dateStr}
-    Budget: $${budget}
+    Budget: ₹${budget}
     Number of Travelers: ${travelers}
     Interests: ${interests || 'General sightseeing'}
     
@@ -124,11 +124,11 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
       "destination": "${destination}",
       "summary": "A one paragraph summary of the destination and what makes it special",
       "budget": {
-        "total": number,
-        "accommodation": number,
-        "food": number,
-        "activities": number,
-        "transportation": number
+        "total": number (in Indian Rupees),
+        "accommodation": number (in Indian Rupees),
+        "food": number (in Indian Rupees),
+        "activities": number (in Indian Rupees),
+        "transportation": number (in Indian Rupees)
       },
       "duration": number (recommended number of days),
       "itinerary": [
@@ -140,7 +140,7 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
               "activity": "string",
               "description": "string",
               "location": "string",
-              "cost": number
+              "cost": number (in Indian Rupees)
             }
           ]
         }
@@ -149,7 +149,7 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
         {
           "name": "string (dish name)",
           "description": "string (short description of the dish)",
-          "price": number (average price in USD),
+          "price": number (average price in Indian Rupees),
           "imageUrl": "string (URL to a photo of the dish - generate a plausible URL for Unsplash like https://source.unsplash.com/random/?food,dishname,${destination})"
         }
       ],
@@ -168,7 +168,7 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
               "airport": "string",
               "time": "string"
             },
-            "price": number,
+            "price": number (in Indian Rupees),
             "duration": "string"
           }
         ],
@@ -182,7 +182,8 @@ export const generateTravelPlan = async (formData: any): Promise<any> => {
     3. Activities match the listed interests
     4. Include local cultural experiences and hidden gems
     5. Include 3-5 popular local food dishes with descriptions, approximate prices, and valid image URLs
-    6. Only include the JSON in your response, with no other text
+    6. All prices should be in Indian Rupees (₹)
+    7. Only include the JSON in your response, with no other text
   `;
 
   try {
@@ -213,10 +214,11 @@ export const sendMessageToGemini = async (
   const context = destination 
     ? `You are a helpful and knowledgeable travel assistant helping a tourist plan their trip to ${destination}. 
        Provide detailed, accurate and helpful information about ${destination}, including attractions, 
-       local customs, food, transportation, and practical travel tips. Keep your answers focused on travel-related information.`
+       local customs, food, transportation, and practical travel tips. Keep your answers focused on travel-related information.
+       When discussing prices, always use Indian Rupees (₹).`
     : `You are a helpful travel assistant. The user hasn't selected a specific destination yet, 
        so you're helping them with general travel planning questions or destination recommendations.
-       Focus only on travel-related assistance and advice.`;
+       Focus only on travel-related assistance and advice. When discussing prices, always use Indian Rupees (₹).`;
 
   return generateGeminiResponse(message, context);
 };
