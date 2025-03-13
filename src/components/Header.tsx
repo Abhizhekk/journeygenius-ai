@@ -1,14 +1,15 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, Menu, X } from 'lucide-react';
+import { Globe, Menu } from 'lucide-react';
 import { 
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import type { HeaderProps } from './Header.d';
 
-const Header = () => {
+const Header: React.FC<HeaderProps> = ({ rightContent }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-morphism backdrop-blur-xl border-b border-slate-200/20">
       <div className="container-inner py-4 flex items-center justify-between">
@@ -29,6 +30,13 @@ const Header = () => {
           <NavLink href="#chat">AI Assistant</NavLink>
           <NavLink href="#gallery">Destinations</NavLink>
         </nav>
+        
+        {/* Add rightContent if provided */}
+        {rightContent && (
+          <div className="ml-4">
+            {rightContent}
+          </div>
+        )}
         
         {/* Mobile Menu */}
         <Sheet>

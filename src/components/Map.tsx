@@ -1,43 +1,74 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { MapPin } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { getApiKey, saveApiKey } from "@/utils/apiKeyUtils";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+
+// Fix for Leaflet marker icons
+import L from 'leaflet';
+// @ts-ignore
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
 interface MapProps {
   location?: string;
 }
 
 const MapEmbed: React.FC<MapProps> = ({ location = '' }) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  // Get API key from our utility
-  const mapboxApiKey = getApiKey('mapbox_api_key');
+  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!mapboxApiKey || !location || !mapContainerRef.current) return;
-
-    // Clean up previous map iframe
-    if (mapContainerRef.current.firstChild) {
-      mapContainerRef.current.removeChild(mapContainerRef.current.firstChild);
-    }
-
-    // Create the map iframe
-    const encodedLocation = encodeURIComponent(location);
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    iframe.style.borderRadius = '1rem';
+    if (!location) return;
     
-    // Use Mapbox static maps API
-    iframe.src = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+3b82f6(${encodedLocation})/auto/500x300?access_token=${mapboxApiKey}`;
-    
-    mapContainerRef.current.appendChild(iframe);
-  }, [mapboxApiKey, location]);
+    const fetchCoordinates = async () => {
+      setIsLoading(true);
+      try {
+        // Use OpenStreetMap's Nominatim API to geocode the location
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`
+        );
+        
+        if (!response.ok) {
+          throw new Error(`Geocoding error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (data && data.length > 0) {
+          // Nominatim returns lat/lon as strings
+          setCoordinates([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+        } else {
+          toast({
+            title: "Location Not Found",
+            description: `Could not find coordinates for "${location}"`,
+            variant: "destructive",
+          });
+          setCoordinates(null);
+        }
+      } catch (error) {
+        console.error("Error fetching location coordinates:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load map coordinates",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCoordinates();
+  }, [location, toast]);
 
   return (
     <Card className="glass-panel border-0 shadow-glass">
@@ -49,30 +80,45 @@ const MapEmbed: React.FC<MapProps> = ({ location = '' }) => {
           </h3>
         </div>
 
-        <div 
-          ref={mapContainerRef} 
-          className={`w-full h-[300px] rounded-lg ${!mapboxApiKey || !location ? 'bg-muted flex items-center justify-center' : ''}`}
-        >
-          {!mapboxApiKey && (
-            <div className="text-center p-4">
-              <p className="text-muted-foreground mb-2">Map requires a Mapbox API key</p>
-              <Button
-                size="sm"
-                onClick={() => {
-                  toast({
-                    title: "API Key Required",
-                    description: "Please set up your Mapbox API key in Settings to view maps.",
-                  });
-                }}
-              >
-                Set up in Settings
-              </Button>
+        <div className={cn(
+          "w-full h-[300px] rounded-lg overflow-hidden", 
+          (!coordinates || isLoading) ? "bg-muted flex items-center justify-center" : ""
+        )}>
+          {isLoading && (
+            <div className="text-muted-foreground text-center">
+              Loading map...
             </div>
           )}
-          {mapboxApiKey && !location && (
+          
+          {!isLoading && !location && (
             <div className="text-muted-foreground text-center">
               Enter a destination to see the map
             </div>
+          )}
+          
+          {!isLoading && location && !coordinates && (
+            <div className="text-muted-foreground text-center">
+              Could not find coordinates for this location
+            </div>
+          )}
+          
+          {coordinates && (
+            <MapContainer 
+              center={coordinates} 
+              zoom={13} 
+              style={{ height: "100%", width: "100%" }}
+              scrollWheelZoom={false}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker position={coordinates}>
+                <Popup>
+                  {location}
+                </Popup>
+              </Marker>
+            </MapContainer>
           )}
         </div>
       </CardContent>
