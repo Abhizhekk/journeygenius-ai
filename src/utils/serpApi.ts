@@ -1,20 +1,18 @@
 
-// Function to get SerpAPI key from environment
-const getSerpApiKey = (): string => {
-  // For development, first check for the key in localStorage
-  const localKey = localStorage.getItem('serp_api_key');
-  if (localKey) return localKey;
-  
-  // Then check for environment variable
-  return import.meta.env.VITE_SERP_API_KEY || '';
-};
+import { getApiKey, hasApiKey } from "@/utils/apiKeyUtils";
+import { toast } from "@/hooks/use-toast";
 
 // Function to search for flights
 export const searchFlights = async (source: string, destination: string, date: string): Promise<any> => {
-  const apiKey = getSerpApiKey();
+  const apiKey = getApiKey('serp_api_key');
   
   if (!apiKey) {
     console.error('SerpAPI key not found');
+    toast({
+      title: "API Key Missing",
+      description: "Please set up your SerpAPI key in Settings to use flight search features.",
+      variant: "destructive",
+    });
     throw new Error('API key not configured');
   }
   
@@ -30,6 +28,11 @@ export const searchFlights = async (source: string, destination: string, date: s
     );
     
     if (!response.ok) {
+      toast({
+        title: "API Error",
+        description: `Error connecting to SerpAPI (${response.status}). Please check your API key.`,
+        variant: "destructive",
+      });
       throw new Error(`SerpAPI error: ${response.status}`);
     }
     

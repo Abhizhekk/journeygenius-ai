@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import type { TravelFormData } from '@/components/TravelForm';
 import type { TripData } from '@/components/TripResults';
+import SettingsDialog from '@/components/SettingsDialog';
+import { hasApiKey } from '@/utils/apiKeyUtils';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,8 +24,8 @@ const Index = () => {
 
   // Check for API keys on component mount
   useEffect(() => {
-    const geminiKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY;
-    if (!geminiKey) {
+    const hasGeminiKey = hasApiKey('gemini_api_key');
+    if (!hasGeminiKey) {
       // Show API key setup prompt
       setTimeout(() => {
         showApiKeySetupToast();
@@ -34,7 +36,7 @@ const Index = () => {
   const showApiKeySetupToast = () => {
     toast({
       title: "API Key Setup Required",
-      description: "Please enter your Gemini API key in the form below to enable all features.",
+      description: "Please set up your Gemini API key in Settings to enable all features.",
       duration: 6000,
     });
   };
@@ -66,34 +68,9 @@ const Index = () => {
     }
   };
 
-  const [geminiApiKey, setGeminiApiKey] = useState<string>(
-    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || ''
-  );
-  const [serpApiKey, setSerpApiKey] = useState<string>(
-    localStorage.getItem('serp_api_key') || import.meta.env.VITE_SERP_API_KEY || ''
-  );
-  const [showApiForm, setShowApiForm] = useState<boolean>(!geminiApiKey);
-
-  const handleSaveApiKeys = () => {
-    if (geminiApiKey) {
-      localStorage.setItem('gemini_api_key', geminiApiKey);
-    }
-    
-    if (serpApiKey) {
-      localStorage.setItem('serp_api_key', serpApiKey);
-    }
-    
-    setShowApiForm(false);
-    
-    toast({
-      title: "API Keys Saved",
-      description: "Your API keys have been saved successfully.",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header rightContent={<SettingsDialog />} />
       
       <main className="pt-24 pb-20">
         {/* Hero Section */}
@@ -133,83 +110,6 @@ const Index = () => {
             </div>
           </motion.div>
         </section>
-        
-        {/* API Key Setup Form */}
-        {showApiForm && (
-          <section className="page-section py-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
-              className="container-inner max-w-2xl"
-            >
-              <div className="glass-panel mb-12">
-                <h2 className="text-2xl font-medium mb-6">API Key Setup</h2>
-                <p className="text-muted-foreground mb-6">
-                  To use all features of this application, please enter your API keys below:
-                </p>
-                
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Gemini API Key (Required)
-                    </label>
-                    <input
-                      type="text"
-                      value={geminiApiKey}
-                      onChange={(e) => setGeminiApiKey(e.target.value)}
-                      placeholder="AIzaSyA..."
-                      className="form-input w-full"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Get your key from{' '}
-                      <a 
-                        href="https://ai.google.dev/" 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        Google AI Studio
-                      </a>
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      SerpAPI Key (Optional - For Flight Information)
-                    </label>
-                    <input
-                      type="text"
-                      value={serpApiKey}
-                      onChange={(e) => setSerpApiKey(e.target.value)}
-                      placeholder="f408da..."
-                      className="form-input w-full"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Get your key from{' '}
-                      <a 
-                        href="https://serpapi.com/" 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        SerpAPI
-                      </a>
-                    </p>
-                  </div>
-                  
-                  <button 
-                    onClick={handleSaveApiKeys}
-                    disabled={!geminiApiKey}
-                    className="btn-primary w-full"
-                  >
-                    Save API Keys
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </section>
-        )}
         
         {/* Trip Planner Section */}
         <section id="planner" className="page-section">
@@ -340,16 +240,6 @@ const Index = () => {
               <a href="#home" className="text-sm text-muted-foreground hover:text-foreground">Home</a>
               <a href="#planner" className="text-sm text-muted-foreground hover:text-foreground">Trip Planner</a>
               <a href="#chat" className="text-sm text-muted-foreground hover:text-foreground">AI Assistant</a>
-              <a 
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowApiForm(true);
-                }}
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                API Settings
-              </a>
             </div>
           </div>
           

@@ -1,5 +1,6 @@
 
 import { toast } from "@/hooks/use-toast";
+import { getApiKey, hasApiKey } from "@/utils/apiKeyUtils";
 
 // Type for Gemini API response
 interface GeminiResponse {
@@ -13,27 +14,21 @@ interface GeminiResponse {
   }>;
 }
 
-// Function to get API key from environment
-const getGeminiApiKey = (): string => {
-  // For development, first check for the key in localStorage
-  const localKey = localStorage.getItem('gemini_api_key');
-  if (localKey) return localKey;
-  
-  // Then check for environment variable
-  // Note: In production, this should be properly configured
-  return import.meta.env.VITE_GEMINI_API_KEY || '';
-};
-
 // Generic function to interact with Gemini API
 export const generateGeminiResponse = async (
   prompt: string,
   context: string = '',
   options: any = {}
 ): Promise<string> => {
-  const apiKey = getGeminiApiKey();
+  const apiKey = getApiKey('gemini_api_key');
   
   if (!apiKey) {
     console.error('Gemini API key not found');
+    toast({
+      title: "API Key Missing",
+      description: "Please set up your Gemini API key in Settings to use this feature.",
+      variant: "destructive",
+    });
     throw new Error('API key not configured');
   }
   
@@ -69,6 +64,11 @@ export const generateGeminiResponse = async (
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Gemini API error:', errorData);
+      toast({
+        title: "API Error",
+        description: `Error connecting to Gemini API (${response.status}). Please check your API key.`,
+        variant: "destructive",
+      });
       throw new Error(`API error: ${response.status}`);
     }
 
@@ -81,6 +81,11 @@ export const generateGeminiResponse = async (
       !data.candidates[0].content.parts ||
       !data.candidates[0].content.parts[0].text
     ) {
+      toast({
+        title: "Response Error",
+        description: "Received an invalid response format from Gemini API.",
+        variant: "destructive",
+      });
       throw new Error('Invalid response format from Gemini API');
     }
 
