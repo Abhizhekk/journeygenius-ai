@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { CalendarDays, Plane, Bot, MapPin, Image } from 'lucide-react';
+import { CalendarDays, Plane, MapPin, Image, Utensils, Hotel } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import TravelForm from '@/components/TravelForm';
 import TripResults from '@/components/TripResults';
 import MapEmbed from '@/components/Map';
 import PhotoGallery from '@/components/PhotoGallery';
-import ChatBot from '@/components/ChatBot';
+import Recommendations from '@/components/Recommendations';
 import { generateTravelPlan } from '@/utils/geminiApi';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
@@ -101,12 +102,12 @@ const Index = () => {
               >
                 Plan My Trip
               </a>
-              <a 
-                href="#chat"
+              <Link 
+                to="/chat"
                 className="btn-secondary"
               >
                 Chat with AI Assistant
-              </a>
+              </Link>
             </div>
           </motion.div>
         </section>
@@ -156,6 +157,38 @@ const Index = () => {
           </div>
         </section>
         
+        {/* Recommendations Section */}
+        {destination && (
+          <section id="recommendations" className="page-section">
+            <div className="container-inner">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center mb-12"
+              >
+                <div className="inline-flex items-center gap-2 bg-secondary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                  <Utensils className="h-4 w-4 mr-1" /> 
+                  <Hotel className="h-4 w-4" />
+                  Travel Recommendations
+                </div>
+                <h2 className="text-3xl md:text-4xl font-medium mb-4">Where to Stay & Eat in {destination}</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Discover the best hotels and authentic local cuisine for your trip.
+                </p>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Recommendations location={destination} />
+              </motion.div>
+            </div>
+          </section>
+        )}
+        
         {/* Map & Photo Section */}
         {destination && (
           <section id="gallery" className="page-section">
@@ -196,36 +229,6 @@ const Index = () => {
             </div>
           </section>
         )}
-        
-        {/* Chat Assistant Section */}
-        <section id="chat" className="page-section">
-          <div className="container-inner">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-12"
-            >
-              <div className="inline-flex items-center gap-2 bg-secondary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-                <Bot className="h-4 w-4" />
-                Virtual Assistant
-              </div>
-              <h2 className="text-3xl md:text-4xl font-medium mb-4">Chat with Your Travel AI</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Ask questions, get recommendations, and learn more about your destination with our AI assistant.
-              </p>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="max-w-4xl mx-auto"
-            >
-              <ChatBot destination={destination} />
-            </motion.div>
-          </div>
-        </section>
       </main>
       
       <footer className="bg-secondary/30 py-12">
@@ -239,13 +242,13 @@ const Index = () => {
             <div className="flex space-x-8">
               <a href="#home" className="text-sm text-muted-foreground hover:text-foreground">Home</a>
               <a href="#planner" className="text-sm text-muted-foreground hover:text-foreground">Trip Planner</a>
-              <a href="#chat" className="text-sm text-muted-foreground hover:text-foreground">AI Assistant</a>
+              <Link to="/chat" className="text-sm text-muted-foreground hover:text-foreground">AI Assistant</Link>
             </div>
           </div>
           
           <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
             <p>© {new Date().getFullYear()} JourneyGenius. Powered by Gemini AI.</p>
-            <p className="mt-2">This app uses Gemini AI, Unsplash for images, and Mapbox for maps.</p>
+            <p className="mt-2">This app uses Gemini AI, Unsplash for images, and OpenStreetMap for maps.</p>
           </div>
         </div>
       </footer>

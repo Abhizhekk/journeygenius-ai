@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { formatIndianRupees } from '@/lib/utils';
 
 export interface TripResultsProps {
   loading: boolean;
@@ -146,12 +147,12 @@ const TripResults: React.FC<TripResultsProps> = ({ loading, tripData, error }) =
               <TripStat 
                 icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
                 label="Total Budget"
-                value={`₹${tripData.budget.total.toLocaleString()}`}
+                value={`₹${formatIndianRupees(tripData.budget.total)}`}
               />
               <TripStat 
                 icon={<Users className="h-5 w-5 text-muted-foreground" />}
                 label="Cost Per Person"
-                value={`₹${Math.round(tripData.budget.total / 2).toLocaleString()}`}
+                value={`₹${formatIndianRupees(Math.round(tripData.budget.total / 2))}`}
               />
             </div>
           </div>
@@ -192,7 +193,7 @@ const TripResults: React.FC<TripResultsProps> = ({ loading, tripData, error }) =
                           <div className="flex justify-between items-start mb-2">
                             <h4 className="font-medium text-base">{food.name}</h4>
                             <Badge variant="outline" className="font-normal">
-                              ₹{food.price}
+                              ₹{formatIndianRupees(food.price)}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{food.description}</p>
@@ -246,7 +247,7 @@ const TripResults: React.FC<TripResultsProps> = ({ loading, tripData, error }) =
                 
                 <div className="flex justify-between items-center py-4 px-6 rounded-lg bg-primary/5 mt-6">
                   <span className="font-medium">Total Budget</span>
-                  <span className="font-medium">₹{tripData.budget.total.toLocaleString()}</span>
+                  <span className="font-medium">₹{formatIndianRupees(tripData.budget.total)}</span>
                 </div>
               </div>
             </TabsContent>
@@ -325,7 +326,7 @@ const ItineraryDayCard = ({ day }: { day: ItineraryDay }) => (
             <p className="text-sm text-muted-foreground">{activity.description}</p>
             {activity.cost && (
               <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                <DollarSign className="h-3 w-3 mr-1" /> Est. Cost: ₹{activity.cost}
+                <DollarSign className="h-3 w-3 mr-1" /> Est. Cost: ₹{formatIndianRupees(activity.cost)}
               </div>
             )}
           </div>
@@ -342,7 +343,7 @@ const BudgetCard = ({ category, amount, total }: { category: string; amount: num
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="text-sm">{category}</span>
-        <span className="text-sm font-medium">₹{amount.toLocaleString()}</span>
+        <span className="text-sm font-medium">₹{formatIndianRupees(amount)}</span>
       </div>
       <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
         <div
@@ -396,7 +397,7 @@ const FlightCard = ({ flight }: { flight: Flight }) => (
         
         <div className="md:text-right">
           <div className="text-sm text-muted-foreground">Price</div>
-          <div className="font-medium">₹{flight.price.toLocaleString()}</div>
+          <div className="font-medium">₹{formatIndianRupees(flight.price)}</div>
         </div>
       </div>
     </CardContent>

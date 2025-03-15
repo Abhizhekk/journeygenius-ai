@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, Menu } from 'lucide-react';
+import { Globe, Menu, Bot } from 'lucide-react';
 import { 
   Sheet,
   SheetContent,
@@ -25,10 +25,13 @@ const Header: React.FC<HeaderProps> = ({ rightContent }) => {
         
         {/* Desktop Menu */}
         <nav className="hidden md:flex items-center space-x-8">
-          <NavLink href="#home">Home</NavLink>
-          <NavLink href="#planner">Plan Trip</NavLink>
-          <NavLink href="#chat">AI Assistant</NavLink>
-          <NavLink href="#gallery">Destinations</NavLink>
+          <NavLink href="/#home">Home</NavLink>
+          <NavLink href="/#planner">Plan Trip</NavLink>
+          <Link to="/chat" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors duration-200 flex items-center gap-1">
+            <Bot className="h-4 w-4" />
+            AI Assistant
+          </Link>
+          <NavLink href="/#gallery">Destinations</NavLink>
         </nav>
         
         {/* Add rightContent if provided */}
@@ -45,10 +48,13 @@ const Header: React.FC<HeaderProps> = ({ rightContent }) => {
           </SheetTrigger>
           <SheetContent side="right" className="glass-morphism">
             <div className="flex flex-col space-y-6 pt-6">
-              <MobileNavLink href="#home">Home</MobileNavLink>
-              <MobileNavLink href="#planner">Plan Trip</MobileNavLink>
-              <MobileNavLink href="#chat">AI Assistant</MobileNavLink>
-              <MobileNavLink href="#gallery">Destinations</MobileNavLink>
+              <MobileNavLink href="/#home">Home</MobileNavLink>
+              <MobileNavLink href="/#planner">Plan Trip</MobileNavLink>
+              <Link to="/chat" className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors duration-200 flex items-center gap-2">
+                <Bot className="h-5 w-5" />
+                AI Assistant
+              </Link>
+              <MobileNavLink href="/#gallery">Destinations</MobileNavLink>
             </div>
           </SheetContent>
         </Sheet>
