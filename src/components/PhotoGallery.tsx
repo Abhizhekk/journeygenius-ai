@@ -8,31 +8,38 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getApiKey } from "@/utils/apiKeyUtils";
+import { toast } from "@/hooks/use-toast";
 
 interface PhotoGalleryProps {
   location?: string;
 }
 
-interface UnsplashPhoto {
+interface Photo {
   id: string;
   urls: {
     regular: string;
     small: string;
   };
   alt_description: string;
-  user: {
+  user?: {
     name: string;
-    links: {
+    links?: {
       html: string;
     };
   };
-  links: {
+  links?: {
     html: string;
   };
+  original?: string;
+  thumbnail?: string;
+  title?: string;
+  position?: number;
+  source?: string;
 }
 
 const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
-  const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -44,7 +51,42 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
       setError('');
       
       try {
-        // Use the Unsplash demo API (limited to 50 requests per hour)
+        const apiKey = getApiKey('serp_api_key');
+        
+        if (apiKey) {
+          // Try to use SerpAPI first
+          const formattedQuery = encodeURIComponent(`${location} travel destination`);
+          const response = await fetch(
+            `https://serpapi.com/search.json?engine=google_images&q=${formattedQuery}&api_key=${apiKey}`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.images_results && data.images_results.length > 0) {
+              // Map SerpAPI results to common format
+              const serpPhotos = data.images_results.slice(0, 8).map((img: any, index: number) => ({
+                id: `serp-${index}`,
+                urls: {
+                  regular: img.original || img.thumbnail,
+                  small: img.thumbnail
+                },
+                alt_description: img.title || `Photo of ${location}`,
+                original: img.original,
+                thumbnail: img.thumbnail,
+                title: img.title,
+                position: img.position,
+                source: img.source
+              }));
+              
+              setPhotos(serpPhotos);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+        
+        // Fallback to Unsplash if SerpAPI fails or returns no results
         const response = await fetch(
           `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
             location
@@ -112,7 +154,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
                   <div
                     className="aspect-square rounded-lg overflow-hidden cursor-pointer relative group img-loading"
                     style={{
-                      backgroundImage: `url(${photo.urls.small})`,
+                      backgroundImage: `url(${photo.urls.small || photo.thumbnail})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }}
@@ -125,20 +167,27 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
                 <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
                   <div className="relative">
                     <img
-                      src={photo.urls.regular}
-                      alt={photo.alt_description || location}
+                      src={photo.urls.regular || photo.original || photo.urls.small || photo.thumbnail}
+                      alt={photo.alt_description || photo.title || location}
                       className="w-full h-auto object-contain rounded-lg max-h-[80vh]"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-3 rounded-b-lg flex justify-between items-center">
-                      <span>Photo by {photo.user.name} on Unsplash</span>
-                      <a
-                        href={photo.links.html}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3" /> Source
-                      </a>
+                      <span>
+                        {photo.user?.name ? 
+                          `Photo by ${photo.user.name} on Unsplash` : 
+                          `Photo of ${location}`
+                        }
+                      </span>
+                      {photo.links?.html && (
+                        <a
+                          href={photo.links.html}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 hover:underline"
+                        >
+                          <ExternalLink className="h-3 w-3" /> Source
+                        </a>
+                      )}
                     </div>
                   </div>
                 </DialogContent>

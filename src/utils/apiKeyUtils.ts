@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 
 // Default API keys for demo purposes
 const DEFAULT_GEMINI_API_KEY = 'AIzaSyBPQ4In0Qw-dr33dxs7odQM6sT1iLPTX2A';
-const DEFAULT_SERP_API_KEY = 'YOUR_SERP_API_KEY'; // Add your SERP API key here
+const DEFAULT_SERP_API_KEY = '139bb9e7039850b5e4a1495c0b535c3eaf2a5fda91e4b7c9ac83cdebff5e2448';
 
 // API key types
 export type ApiKeyType = 'gemini_api_key' | 'serp_api_key';
@@ -28,7 +28,7 @@ export const hasApiKey = (keyType: ApiKeyType): boolean => {
   if (keyType === 'gemini_api_key' && DEFAULT_GEMINI_API_KEY) {
     return true;
   }
-  if (keyType === 'serp_api_key' && DEFAULT_SERP_API_KEY !== 'YOUR_SERP_API_KEY') {
+  if (keyType === 'serp_api_key' && DEFAULT_SERP_API_KEY) {
     return true;
   }
   
@@ -74,7 +74,7 @@ export const getApiKey = (keyType: ApiKeyType): string => {
   if (keyType === 'gemini_api_key') {
     return DEFAULT_GEMINI_API_KEY;
   }
-  if (keyType === 'serp_api_key' && DEFAULT_SERP_API_KEY !== 'YOUR_SERP_API_KEY') {
+  if (keyType === 'serp_api_key') {
     return DEFAULT_SERP_API_KEY;
   }
   

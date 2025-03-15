@@ -1,4 +1,3 @@
-
 import { getApiKey } from "@/utils/apiKeyUtils";
 import { toast } from "@/hooks/use-toast";
 import { formatIndianRupees } from "@/lib/utils";
@@ -46,7 +45,7 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
     toast({
       title: "API Key Missing",
       description: "Using sample hotel data since SerpAPI key is not configured.",
-      variant: "warning",
+      variant: "destructive",
     });
     return generateSampleHotels(location);
   }
@@ -64,7 +63,7 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
       toast({
         title: "API Error",
         description: `Using sample data. Error: (${response.status})`,
-        variant: "warning",
+        variant: "destructive",
       });
       return generateSampleHotels(location);
     }
@@ -113,7 +112,7 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
     toast({
       title: "Using Sample Data",
       description: "Could not fetch hotel recommendations",
-      variant: "warning",
+      variant: "destructive",
     });
     return generateSampleHotels(location);
   }
@@ -128,7 +127,7 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
     toast({
       title: "API Key Missing",
       description: "Using sample food data since SerpAPI key is not configured.",
-      variant: "warning",
+      variant: "destructive",
     });
     return generateSampleFoods(location);
   }
@@ -146,7 +145,7 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
       toast({
         title: "API Error",
         description: `Using sample data. Error: (${response.status})`,
-        variant: "warning",
+        variant: "destructive",
       });
       return generateSampleFoods(location);
     }
@@ -203,7 +202,7 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
     toast({
       title: "Using Sample Data",
       description: "Could not fetch food recommendations",
-      variant: "warning",
+      variant: "destructive",
     });
     return generateSampleFoods(location);
   }
@@ -282,7 +281,7 @@ const generateSampleFoods = (location: string): FoodRecommendation[] => {
       restaurant: 'Morning Delights'
     },
     {
-      name: `Royal ${location} Biryani`,
+      name: `${location} Biryani`,
       description: `A royal preparation of aromatic rice dish with authentic ${location} spices.`,
       price: 550,
       imageUrl: FOOD_IMAGES[5],
