@@ -97,7 +97,7 @@ const MapEmbed: React.FC<MapEmbedProps> = ({ location = '' }) => {
         {mapLoaded && !loading && (
           <div className="relative h-[400px] w-full rounded-lg overflow-hidden">
             <MapContainer 
-              center={coordinates as any} 
+              center={coordinates} 
               zoom={10} 
               style={{ height: '100%', width: '100%' }} 
               scrollWheelZoom={false}
@@ -105,9 +105,8 @@ const MapEmbed: React.FC<MapEmbedProps> = ({ location = '' }) => {
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                as={TileLayer as any}
               />
-              <Marker position={coordinates as any} icon={customIcon}>
+              <Marker position={coordinates} icon={customIcon}>
                 <Popup>
                   <div className="text-center py-1">
                     <div className="font-medium">{location}</div>

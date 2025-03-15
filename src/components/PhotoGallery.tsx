@@ -57,7 +57,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
           // Try to use SerpAPI first
           const formattedQuery = encodeURIComponent(`${location} travel destination`);
           const response = await fetch(
-            `https://serpapi.com/search.json?engine=google_images&q=${formattedQuery}&api_key=${apiKey}`
+            `https://serpapi.com/search.json?engine=google_images&q=${formattedQuery}&api_key=${apiKey}&ijn=0&tbs=isz:m`
           );
           
           if (response.ok) {
@@ -68,7 +68,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
               const serpPhotos = data.images_results.slice(0, 8).map((img: any, index: number) => ({
                 id: `serp-${index}`,
                 urls: {
-                  regular: img.original || img.thumbnail,
+                  regular: img.original,
                   small: img.thumbnail
                 },
                 alt_description: img.title || `Photo of ${location}`,
@@ -83,6 +83,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
               setLoading(false);
               return;
             }
+          } else {
+            console.error('SerpAPI response error:', await response.text());
           }
         }
         
@@ -109,6 +111,23 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
 
     fetchPhotos();
   }, [location]);
+
+  // Early return if there's no location
+  if (!location && !loading) {
+    return (
+      <Card className="glass-panel border-0 shadow-glass">
+        <CardContent className="p-4">
+          <h3 className="font-medium flex items-center gap-2 mb-4">
+            <ImageIcon className="h-5 w-5 text-primary" />
+            Destination Photos
+          </h3>
+          <div className="text-center py-8 text-muted-foreground">
+            Enter a destination to see photos
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="glass-panel border-0 shadow-glass">
@@ -137,12 +156,6 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
         {!loading && !error && photos.length === 0 && location && (
           <div className="text-center py-8 text-muted-foreground">
             No photos found for this location.
-          </div>
-        )}
-
-        {!location && !loading && (
-          <div className="text-center py-8 text-muted-foreground">
-            Enter a destination to see photos
           </div>
         )}
 
@@ -178,9 +191,9 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ location = '' }) => {
                           `Photo of ${location}`
                         }
                       </span>
-                      {photo.links?.html && (
+                      {(photo.links?.html || photo.source) && (
                         <a
-                          href={photo.links.html}
+                          href={photo.links?.html || photo.source}
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-1 hover:underline"
