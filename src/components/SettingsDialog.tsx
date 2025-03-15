@@ -99,7 +99,7 @@ const SettingsDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="ghost" size="icon" className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20">
           <Settings className="h-5 w-5" />
           <span className="sr-only">Settings</span>
         </Button>
@@ -124,10 +124,17 @@ const SettingsDialog = () => {
               <h3 className="font-medium">API Keys Configuration</h3>
             </div>
             
+            <div className="p-4 bg-muted/40 rounded-lg mb-4">
+              <p className="text-sm">
+                <strong>Note:</strong> Default API keys are already provided for demo purposes. 
+                You only need to add your own keys if you want to use your personal API quotas.
+              </p>
+            </div>
+            
             <ApiKeyField 
               keyType="gemini_api_key"
               label="Gemini API Key"
-              description="Required for AI trip planning and chatbot functionality."
+              description="Used for AI trip planning and chatbot functionality."
               placeholderText="AIzaSyA..."
               docsUrl="https://ai.google.dev/"
             />
@@ -135,17 +142,9 @@ const SettingsDialog = () => {
             <ApiKeyField 
               keyType="serp_api_key"
               label="SerpAPI Key"
-              description="Optional. Used for flight information and search capabilities."
+              description="Used for flight information and search capabilities."
               placeholderText="f408da..."
               docsUrl="https://serpapi.com/"
-            />
-            
-            <ApiKeyField 
-              keyType="mapbox_api_key"
-              label="Mapbox API Key"
-              description="Optional. Used for displaying maps of your destinations."
-              placeholderText="pk.eyJ1..."
-              docsUrl="https://mapbox.com/"
             />
           </TabsContent>
           

@@ -3,8 +3,12 @@
 
 import { toast } from "@/hooks/use-toast";
 
+// Default API keys for demo purposes
+const DEFAULT_GEMINI_API_KEY = 'AIzaSyBPQ4In0Qw-dr33dxs7odQM6sT1iLPTX2A';
+const DEFAULT_SERP_API_KEY = 'YOUR_SERP_API_KEY'; // Add your SERP API key here
+
 // API key types
-export type ApiKeyType = 'gemini_api_key' | 'serp_api_key' | 'mapbox_api_key';
+export type ApiKeyType = 'gemini_api_key' | 'serp_api_key';
 
 // Check if an API key exists
 export const hasApiKey = (keyType: ApiKeyType): boolean => {
@@ -17,6 +21,14 @@ export const hasApiKey = (keyType: ApiKeyType): boolean => {
     return true;
   }
   if (keyType === 'serp_api_key' && import.meta.env.VITE_SERP_API_KEY) {
+    return true;
+  }
+  
+  // Finally check default keys
+  if (keyType === 'gemini_api_key' && DEFAULT_GEMINI_API_KEY) {
+    return true;
+  }
+  if (keyType === 'serp_api_key' && DEFAULT_SERP_API_KEY !== 'YOUR_SERP_API_KEY') {
     return true;
   }
   
@@ -50,10 +62,20 @@ export const getApiKey = (keyType: ApiKeyType): string => {
   
   // Then check environment variables
   if (keyType === 'gemini_api_key') {
-    return import.meta.env.VITE_GEMINI_API_KEY || '';
+    const envKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (envKey) return envKey;
   }
   if (keyType === 'serp_api_key') {
-    return import.meta.env.VITE_SERP_API_KEY || '';
+    const envKey = import.meta.env.VITE_SERP_API_KEY;
+    if (envKey) return envKey;
+  }
+  
+  // Finally return default keys
+  if (keyType === 'gemini_api_key') {
+    return DEFAULT_GEMINI_API_KEY;
+  }
+  if (keyType === 'serp_api_key' && DEFAULT_SERP_API_KEY !== 'YOUR_SERP_API_KEY') {
+    return DEFAULT_SERP_API_KEY;
   }
   
   return '';

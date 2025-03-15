@@ -103,7 +103,7 @@ const MapEmbed: React.FC<MapProps> = ({ location = '' }) => {
           
           {coordinates && (
             <MapContainer 
-              center={coordinates as [number, number]} 
+              center={coordinates} 
               zoom={13} 
               style={{ height: "100%", width: "100%" }}
               scrollWheelZoom={false}
@@ -112,7 +112,7 @@ const MapEmbed: React.FC<MapProps> = ({ location = '' }) => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker position={coordinates as [number, number]}>
+              <Marker position={coordinates}>
                 <Popup>
                   {location}
                 </Popup>

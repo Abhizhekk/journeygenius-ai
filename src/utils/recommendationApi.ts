@@ -20,6 +20,23 @@ export interface FoodRecommendation {
   restaurant?: string;
 }
 
+// Sample images for fallback scenarios
+const FOOD_IMAGES = [
+  'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=480&q=80',
+];
+
+const HOTEL_IMAGES = [
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=480&q=80',
+  'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=480&q=80',
+];
+
 // Function to search for hotel recommendations
 export const searchHotels = async (location: string): Promise<HotelRecommendation[]> => {
   const apiKey = getApiKey('serp_api_key');
@@ -28,10 +45,10 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
     console.error('SerpAPI key not found');
     toast({
       title: "API Key Missing",
-      description: "Please set up your SerpAPI key in Settings to use hotel recommendations.",
-      variant: "destructive",
+      description: "Using sample hotel data since SerpAPI key is not configured.",
+      variant: "warning",
     });
-    return [];
+    return generateSampleHotels(location);
   }
   
   try {
@@ -46,10 +63,10 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
     if (!response.ok) {
       toast({
         title: "API Error",
-        description: `Error connecting to SerpAPI (${response.status}). Please check your API key.`,
-        variant: "destructive",
+        description: `Using sample data. Error: (${response.status})`,
+        variant: "warning",
       });
-      return [];
+      return generateSampleHotels(location);
     }
     
     const data = await response.json();
@@ -67,7 +84,7 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
           rating: hotel.rating || 4.5,
           pricePerNight: priceRaw * 83, // Convert USD to INR (approximate)
           description: hotel.description || `Experience the beauty of ${location} at this wonderful hotel featuring modern amenities and excellent service.`,
-          imageUrl: hotel.thumbnail || 'https://placehold.co/600x400?text=Hotel',
+          imageUrl: hotel.thumbnail || HOTEL_IMAGES[Math.floor(Math.random() * HOTEL_IMAGES.length)],
           address: hotel.address,
         });
       });
@@ -79,7 +96,7 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
           rating: result.rating || 4.5,
           pricePerNight: 8500, // Default price in INR
           description: `Experience the beauty of ${location} at this wonderful hotel featuring modern amenities and excellent service.`,
-          imageUrl: result.thumbnail || 'https://placehold.co/600x400?text=Hotel',
+          imageUrl: result.thumbnail || HOTEL_IMAGES[Math.floor(Math.random() * HOTEL_IMAGES.length)],
           address: result.address,
         });
       });
@@ -87,40 +104,18 @@ export const searchHotels = async (location: string): Promise<HotelRecommendatio
     
     // If no hotel data found, create placeholder data
     if (hotels.length === 0) {
-      hotels.push(
-        {
-          name: 'Grand Luxury Hotel',
-          rating: 4.8,
-          pricePerNight: 12000,
-          description: `Experience luxury accommodation in ${location} with spectacular views and premium service.`,
-          imageUrl: 'https://placehold.co/600x400?text=Luxury+Hotel',
-        },
-        {
-          name: 'Comfort Inn',
-          rating: 4.2,
-          pricePerNight: 6500,
-          description: `Comfortable and affordable lodging in the heart of ${location}.`,
-          imageUrl: 'https://placehold.co/600x400?text=Comfort+Inn',
-        },
-        {
-          name: 'Heritage Resort',
-          rating: 4.6,
-          pricePerNight: 9000,
-          description: `Experience the cultural heritage of ${location} at this beautiful resort.`,
-          imageUrl: 'https://placehold.co/600x400?text=Heritage+Resort',
-        }
-      );
+      return generateSampleHotels(location);
     }
     
     return hotels;
   } catch (error) {
     console.error('Error in hotel search:', error);
     toast({
-      title: "Error",
+      title: "Using Sample Data",
       description: "Could not fetch hotel recommendations",
-      variant: "destructive",
+      variant: "warning",
     });
-    return [];
+    return generateSampleHotels(location);
   }
 };
 
@@ -132,10 +127,10 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
     console.error('SerpAPI key not found');
     toast({
       title: "API Key Missing",
-      description: "Please set up your SerpAPI key in Settings to use food recommendations.",
-      variant: "destructive",
+      description: "Using sample food data since SerpAPI key is not configured.",
+      variant: "warning",
     });
-    return [];
+    return generateSampleFoods(location);
   }
   
   try {
@@ -150,10 +145,10 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
     if (!response.ok) {
       toast({
         title: "API Error",
-        description: `Error connecting to SerpAPI (${response.status}). Please check your API key.`,
-        variant: "destructive",
+        description: `Using sample data. Error: (${response.status})`,
+        variant: "warning",
       });
-      return [];
+      return generateSampleFoods(location);
     }
     
     const data = await response.json();
@@ -185,11 +180,13 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
           `A perfect blend of local spices and traditional cooking methods.`
         ];
         
+        const imageUrl = result.original || result.thumbnail || FOOD_IMAGES[index % FOOD_IMAGES.length];
+        
         foods.push({
           name: foodNames[index % foodNames.length],
           description: descriptions[index % descriptions.length],
           price: randomPrice,
-          imageUrl: result.original || result.thumbnail || 'https://placehold.co/600x400?text=Food',
+          imageUrl: imageUrl,
           restaurant: `${location} Authentic Restaurant ${index + 1}`
         });
       });
@@ -197,39 +194,99 @@ export const searchFoods = async (location: string): Promise<FoodRecommendation[
     
     // If no food data found, create placeholder data
     if (foods.length === 0) {
-      foods.push(
-        {
-          name: `${location} Spicy Curry`,
-          description: `A traditional spicy curry that captures the essence of ${location} flavors.`,
-          price: 350,
-          imageUrl: 'https://placehold.co/600x400?text=Spicy+Curry',
-          restaurant: 'Spice Garden Restaurant'
-        },
-        {
-          name: `${location} Special Thali`,
-          description: `A complete meal featuring all the local specialties of ${location}.`,
-          price: 450,
-          imageUrl: 'https://placehold.co/600x400?text=Special+Thali',
-          restaurant: 'Heritage Dining'
-        },
-        {
-          name: `${location} Sweet Delight`,
-          description: `A famous dessert that completes any authentic ${location} meal.`,
-          price: 175,
-          imageUrl: 'https://placehold.co/600x400?text=Sweet+Delight',
-          restaurant: 'Sweet Traditions'
-        }
-      );
+      return generateSampleFoods(location);
     }
     
     return foods;
   } catch (error) {
     console.error('Error in food search:', error);
     toast({
-      title: "Error",
+      title: "Using Sample Data",
       description: "Could not fetch food recommendations",
-      variant: "destructive",
+      variant: "warning",
     });
-    return [];
+    return generateSampleFoods(location);
   }
+};
+
+// Generate sample hotels for fallback
+const generateSampleHotels = (location: string): HotelRecommendation[] => {
+  return [
+    {
+      name: `Grand ${location} Luxury Hotel`,
+      rating: 4.8,
+      pricePerNight: 12000,
+      description: `Experience luxury accommodation in ${location} with spectacular views and premium service.`,
+      imageUrl: HOTEL_IMAGES[0],
+    },
+    {
+      name: `${location} Comfort Inn`,
+      rating: 4.2,
+      pricePerNight: 6500,
+      description: `Comfortable and affordable lodging in the heart of ${location}.`,
+      imageUrl: HOTEL_IMAGES[1],
+    },
+    {
+      name: `Heritage Resort ${location}`,
+      rating: 4.6,
+      pricePerNight: 9000,
+      description: `Experience the cultural heritage of ${location} at this beautiful resort.`,
+      imageUrl: HOTEL_IMAGES[2],
+    },
+    {
+      name: `${location} Royal Palace Hotel`,
+      rating: 4.7,
+      pricePerNight: 15000,
+      description: `A luxurious stay with royal treatment in the cultural hub of ${location}.`,
+      imageUrl: HOTEL_IMAGES[3],
+    }
+  ];
+};
+
+// Generate sample foods for fallback
+const generateSampleFoods = (location: string): FoodRecommendation[] => {
+  return [
+    {
+      name: `${location} Spicy Curry`,
+      description: `A traditional spicy curry that captures the essence of ${location} flavors.`,
+      price: 350,
+      imageUrl: FOOD_IMAGES[0],
+      restaurant: 'Spice Garden Restaurant'
+    },
+    {
+      name: `${location} Special Thali`,
+      description: `A complete meal featuring all the local specialties of ${location}.`,
+      price: 450,
+      imageUrl: FOOD_IMAGES[1],
+      restaurant: 'Heritage Dining'
+    },
+    {
+      name: `${location} Sweet Delight`,
+      description: `A famous dessert that completes any authentic ${location} meal.`,
+      price: 175,
+      imageUrl: FOOD_IMAGES[2],
+      restaurant: 'Sweet Traditions'
+    },
+    {
+      name: `${location} Street Food Platter`,
+      description: `Collection of popular street foods from ${location} in one delicious platter.`,
+      price: 275,
+      imageUrl: FOOD_IMAGES[3],
+      restaurant: 'Street Flavors'
+    },
+    {
+      name: `${location} Breakfast Special`,
+      description: `Start your day with this energizing traditional breakfast from ${location}.`,
+      price: 225,
+      imageUrl: FOOD_IMAGES[4],
+      restaurant: 'Morning Delights'
+    },
+    {
+      name: `Royal ${location} Biryani`,
+      description: `A royal preparation of aromatic rice dish with authentic ${location} spices.`,
+      price: 550,
+      imageUrl: FOOD_IMAGES[5],
+      restaurant: 'Royal Kitchens'
+    }
+  ];
 };
